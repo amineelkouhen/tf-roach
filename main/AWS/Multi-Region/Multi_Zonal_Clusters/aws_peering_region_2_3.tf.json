@@ -1,0 +1,12 @@
+{
+  "module": {
+    "peering-vpc2-vpc3": {
+      "source": "../../../../modules/aws/peering",
+      "name": "${var.deployment_name}-vpc-peering-${var.env[1]}-${var.env[2]}",
+      "requester_vpc": "${module.network-vpc-2.raw_vpc}",
+      "peer_vpc": "${module.network-vpc-3.raw_vpc}",
+      "requester_region": "${var.regions[1]}",
+      "peer_region": "${var.regions[2]}"
+    }
+  }
+}

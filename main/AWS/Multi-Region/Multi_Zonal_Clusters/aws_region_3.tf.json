@@ -1,0 +1,87 @@
+{
+    "provider": {
+        "aws": {
+            "region": "${var.regions[2]}",
+            "access_key": "${var.aws_access_key}",
+            "secret_key": "${var.aws_secret_key}",
+            "token": "${var.aws_session_token}",
+            "alias": "provider3"
+        }
+    },
+    "module": {
+        "network-vpc-3": {
+            "source": "../../../../modules/aws/network",
+            "name": "${var.deployment_name}-${var.env[2]}",
+            "vpc_cidr": "${var.vpc_cidr[2]}",
+            "resource_tags" : {},
+            "subnets_cidrs": "${var.subnets[2]}",
+            "providers": {
+                "aws": "aws.provider3"
+            }
+        },
+        "keypair-3": {
+            "source": "../../../../modules/aws/keypair",
+            "name": "${var.deployment_name}-${var.env[2]}",
+            "ssh_public_key": "${var.ssh_public_key}",
+            "resource_tags" : {},
+            "providers": {
+                "aws": "aws.provider3"
+            }
+        },
+        "cr-cluster-3": {
+            "source": "../../../../modules/aws/cr",
+            "name": "${var.deployment_name}-${var.env[2]}",
+            "worker_count": "${var.cluster_size[2]}",
+            "machine_type": "${var.machine_type}",
+            "machine_image": "${var.machine_images[2]}",
+            "resource_tags" : {},
+            "ssh_user": "${var.ssh_user}",
+            "ssh_public_key": "${var.ssh_public_key}",
+            "ssh_key_name": "${module.keypair-3.key-name}",
+            "security_groups": "${module.network-vpc-3.security-groups}",
+            "region": "${var.regions[2]}",
+            "availability_zones": "${keys(var.subnets[2])}",
+            "subnets": "${module.network-vpc-3.subnets}",
+            "cockroach_release" : "${var.crdb_release}",
+            "cluster_join_ips" : "${concat(module.cr-cluster-1.cr-private-ips, module.cr-cluster-2.cr-private-ips, module.cr-cluster-3.cr-private-ips)}",
+            "boot_disk_size" : "${var.volume_size}",
+            "boot_disk_type" : "${var.volume_type}",
+            "sql_load_balancer_arn" : "${module.network-vpc-3.sql_load_balancer_target_group}",
+            "console_load_balancer_arn" : "${module.network-vpc-3.console_load_balancer_target_group}",
+            "init" : true,
+            "providers": {
+                "aws": "aws.provider3"
+            }
+        },
+        "weighted-lb": {
+            "source": "../../../../modules/aws/ns-public",
+            "subdomain": "${var.deployment_name}",
+            "hosted_zone": "${var.hosted_zone}",
+            "nlb_list": "${[module.network-vpc-1.nlb_dns_name, module.network-vpc-2.nlb_dns_name, module.network-vpc-3.nlb_dns_name]}",
+            "resource_tags" : {},
+            "providers": {
+                "aws": "aws.provider3"
+            }
+        }
+    },
+    "output": {
+        "cr-cluster-3-public-ips": {
+            "value": "${module.cr-cluster-3.cr-public-ips}"
+        },
+        "cr-cluster-3-private-ips": {
+            "value": "${module.cr-cluster-3.cr-private-ips}"
+        },
+        "cr-cluster-3-nlb-dns": {
+            "value": "${module.network-vpc-3.nlb_dns_name}"
+        },
+        "cluster-dns": {
+            "value": "${module.weighted-lb.cluster_master_dns}"
+        },
+        "console-url": {
+            "value": "http://${module.weighted-lb.cluster_master_dns}:8080/"
+        },
+        "connexion-string": {
+            "value": "postgresql://root@${module.weighted-lb.cluster_master_dns}:26257/defaultdb"
+        }
+    }
+}

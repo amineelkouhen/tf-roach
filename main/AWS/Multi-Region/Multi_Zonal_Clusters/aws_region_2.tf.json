@@ -1,0 +1,68 @@
+{
+    "provider": {
+        "aws": {
+            "region": "${var.regions[1]}",
+            "access_key": "${var.aws_access_key}",
+            "secret_key": "${var.aws_secret_key}",
+            "token": "${var.aws_session_token}",
+            "alias": "provider2"
+        }
+    },
+    "module": {
+        "network-vpc-2": {
+            "source": "../../../../modules/aws/network",
+            "name": "${var.deployment_name}-${var.env[1]}",
+            "vpc_cidr": "${var.vpc_cidr[1]}",
+            "resource_tags" : {},
+            "subnets_cidrs": "${var.subnets[1]}",
+            "providers": {
+                "aws": "aws.provider2"
+            }
+        },
+        "keypair-2": {
+            "source": "../../../../modules/aws/keypair",
+            "name": "${var.deployment_name}-${var.env[1]}",
+            "ssh_public_key": "${var.ssh_public_key}",
+            "resource_tags" : {},
+            "providers": {
+                "aws": "aws.provider2"
+            }
+        },
+        "cr-cluster-2": {
+            "source": "../../../../modules/aws/cr",
+            "name": "${var.deployment_name}-${var.env[1]}",
+            "worker_count": "${var.cluster_size[1]}",
+            "machine_type": "${var.machine_type}",
+            "machine_image": "${var.machine_images[1]}",
+            "resource_tags" : {},
+            "ssh_user": "${var.ssh_user}",
+            "ssh_public_key": "${var.ssh_public_key}",
+            "ssh_key_name": "${module.keypair-2.key-name}",
+            "security_groups": "${module.network-vpc-2.security-groups}",
+            "region": "${var.regions[1]}",
+            "availability_zones": "${keys(var.subnets[1])}",
+            "subnets": "${module.network-vpc-2.subnets}",
+            "cockroach_release" : "${var.crdb_release}",
+            "cluster_join_ips" : "${concat(module.cr-cluster-1.cr-private-ips, module.cr-cluster-2.cr-private-ips, module.cr-cluster-3.cr-private-ips)}",
+            "boot_disk_size" : "${var.volume_size}",
+            "boot_disk_type" : "${var.volume_type}",
+            "sql_load_balancer_arn" : "${module.network-vpc-2.sql_load_balancer_target_group}",
+            "console_load_balancer_arn" : "${module.network-vpc-2.console_load_balancer_target_group}",
+            "init" : false,
+            "providers": {
+                "aws": "aws.provider2"
+            }
+        }
+    },
+    "output": {
+        "cr-cluster-2-public-ips": {
+            "value": "${module.cr-cluster-2.cr-public-ips}"
+        },
+        "cr-cluster-2-private-ips": {
+            "value": "${module.cr-cluster-2.cr-private-ips}"
+        },
+        "cr-cluster-2-nlb-dns": {
+            "value": "${module.network-vpc-2.nlb_dns_name}"
+        }
+    }
+}

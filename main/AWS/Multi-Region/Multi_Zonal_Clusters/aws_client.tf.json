@@ -1,0 +1,69 @@
+{
+    "provider": {
+        "aws": {
+            "region": "${var.client_region}",
+            "access_key": "${var.aws_access_key}",
+            "secret_key": "${var.aws_secret_key}",
+            "token": "${var.aws_session_token}",
+            "alias": "client_provider"
+        }
+    },
+    "module": {
+        "client-network": {
+            "source": "../../../../modules/aws/client-network",
+            "name": "${var.deployment_name}-client",
+            "client_vpc_cidr": "${var.client_vpc_cidr}",
+            "resource_tags" : {},
+            "client_subnet_cidr": "${var.client_subnet}",
+            "providers": {
+                "aws": "aws.client_provider"
+            }
+        },
+        "keypair": {
+            "source": "../../../../modules/aws/keypair",
+            "name": "${var.deployment_name}-client",
+            "ssh_public_key": "${var.ssh_public_key}",
+            "resource_tags" : {},
+            "providers": {
+                "aws": "aws.client_provider"
+            }
+        },
+        "client": {
+            "source": "../../../../modules/aws/bastion",
+            "name": "${var.deployment_name}-client",
+            "subnet": "${module.client-network.client_subnets.id}",
+            "availability_zone": "${keys(var.client_subnet)[0]}",
+            "security_groups": "${module.client-network.client-security-groups}",
+            "machine_image": "${var.client_machine_image}",
+            "machine_type": "${var.machine_type}",
+            "connection_string": "postgresql://root@${module.weighted-lb.cluster_master_dns}:26257",
+            "demo_schema_script": "${var.demo_schema_script}",
+            "backend_port": "${var.backend_port}",
+            "frontend_port": "${var.frontend_port}",
+            "database_name": "${var.database_name}",
+            "demo_repository": "${var.demo_repository}",
+            "cluster_organization" : "${var.organization_name}",
+            "cluster_license" : "${var.cluster_license}",
+            "cockroach_release" : "${var.crdb_release}",
+            "regions": "${var.regions}",
+            "resource_tags" : {},
+            "ssh_user": "${var.ssh_user}",
+            "ssh_public_key": "${var.ssh_public_key}",
+            "ssh_key_name": "${module.keypair.key-name}",
+            "providers": {
+                "aws": "aws.client_provider"
+            }
+        }
+    },
+    "output": {
+        "client-public-IP": {
+            "value": "${module.client.public-ip}"
+        },
+        "backend-url": {
+            "value": "http://${module.client.public-ip}:${var.backend_port}/api/data"
+        },
+        "frontend-url": {
+            "value": "http://${module.client.public-ip}:${var.frontend_port}/"
+        }
+    }
+}
