@@ -47,8 +47,8 @@ variable "ssh_public_key" {
   type        = string
 }
 
-variable "connection_string" {
-  description = "CRDB connection string"
+variable "cluster_fqdn" {
+  description = "CRDB Cluster fqdn"
   type        = string
 }
 
@@ -93,4 +93,8 @@ variable "backend_port" {
 variable "frontend_port" {
   description = "The demo frontend port"
   type = number
+}
+
+variable "dependencies" {
+  type        = list
 }
