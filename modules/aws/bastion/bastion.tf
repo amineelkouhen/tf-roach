@@ -40,6 +40,7 @@ resource "aws_instance" "bastion" {
   instance_type     = var.machine_type
   availability_zone = var.availability_zone
   key_name          = var.ssh_key_name
+  depends_on        = [var.dependencies]
 
   tags = merge("${var.resource_tags}",{
     Name = "${var.name}-client"
@@ -121,38 +122,50 @@ resource "aws_instance" "bastion" {
   sudo bash -c "$command 2>&1" >> /home/${var.ssh_user}/create_demo.log
 
   ################
-  # Create Database Schema
+  # Check CRDB Cluster DNS
+  echo "$(date) - Check CRDB Cluster DNS" >> /home/${var.ssh_user}/create_demo.log
 
+  status_code=$(curl --write-out '%%{http_code}' --silent  --output /dev/null "http://${var.cluster_fqdn}:8080")
+  while [ "$status_code" != "200" ]; do
+      echo "Retry in 20 seconds..." >> /home/${var.ssh_user}/create_demo.log
+      sleep 20
+      status_code=$(curl --write-out '%%{http_code}' --silent  --output /dev/null "http://${var.cluster_fqdn}:8080")
+  done
+
+  echo "$(date) - CRDB Cluster is Up." >> /home/${var.ssh_user}/create_demo.log
+
+  ################
+  # Create Database Schema
   name=$${repository##*/}
   foldername=$${name%.*}
   cd /home/${var.ssh_user}/$foldername
 
   echo "$(date) - Configure Cluster's License" >> /home/${var.ssh_user}/create_demo.log
-  command="cockroach sql --url ${var.connection_string} --insecure --execute=\"SET CLUSTER SETTING cluster.organization = '${var.cluster_organization}'\""
+  command="cockroach sql --url postgresql://root@${var.cluster_fqdn}:26257 --insecure --execute=\"SET CLUSTER SETTING cluster.organization = '${var.cluster_organization}'\""
   echo "$command" >> /home/${var.ssh_user}/create_demo.log
   sudo bash -c "$command 2>&1" >> /home/${var.ssh_user}/create_demo.log
-  command="cockroach sql --url ${var.connection_string} --insecure --execute=\"SET CLUSTER SETTING enterprise.license = '${var.cluster_license}';\""
+  command="cockroach sql --url postgresql://root@${var.cluster_fqdn}:26257 --insecure --execute=\"SET CLUSTER SETTING enterprise.license = '${var.cluster_license}';\""
   echo "$command" >> /home/${var.ssh_user}/create_demo.log
   sudo bash -c "$command 2>&1" >> /home/${var.ssh_user}/create_demo.log
 
   echo "$(date) - Create ${var.database_name} Schema" >> /home/${var.ssh_user}/create_demo.log
-  command="cockroach sql --url ${var.connection_string} --insecure --file ${var.demo_schema_script}"
+  command="cockroach sql --url postgresql://root@${var.cluster_fqdn}:26257 --insecure --file ${var.demo_schema_script}"
   echo "$command" >> /home/${var.ssh_user}/create_demo.log
   sudo bash -c "$command 2>&1" >> /home/${var.ssh_user}/create_demo.log
 
   echo "$(date) - Associate Regions for ${var.database_name}" >> /home/${var.ssh_user}/create_demo.log
-  command="cockroach sql --url ${var.connection_string} --insecure --execute=\"ALTER DATABASE ${var.database_name} SET PRIMARY REGION '${var.regions[0]}';\""
+  command="cockroach sql --url postgresql://root@${var.cluster_fqdn}:26257 --insecure --execute=\"ALTER DATABASE ${var.database_name} SET PRIMARY REGION '${var.regions[0]}';\""
   echo "$command" >> /home/${var.ssh_user}/create_demo.log
   sudo bash -c "$command 2>&1" >> /home/${var.ssh_user}/create_demo.log
-  command="cockroach sql --url ${var.connection_string} --insecure --execute=\"ALTER DATABASE ${var.database_name} ADD REGION '${var.regions[1]}';\""
+  command="cockroach sql --url postgresql://root@${var.cluster_fqdn}:26257 --insecure --execute=\"ALTER DATABASE ${var.database_name} ADD REGION '${var.regions[1]}';\""
   echo "$command" >> /home/${var.ssh_user}/create_demo.log
   sudo bash -c "$command 2>&1" >> /home/${var.ssh_user}/create_demo.log
-  command="cockroach sql --url ${var.connection_string} --insecure --execute=\"ALTER DATABASE ${var.database_name} ADD REGION '${var.regions[2]}';\""
+  command="cockroach sql --url postgresql://root@${var.cluster_fqdn}:26257 --insecure --execute=\"ALTER DATABASE ${var.database_name} ADD REGION '${var.regions[2]}';\""
   echo "$command" >> /home/${var.ssh_user}/create_demo.log
   sudo bash -c "$command 2>&1" >> /home/${var.ssh_user}/create_demo.log
 
   echo "$(date) - Create SURVIVE REGION FAILURE for ${var.database_name}" >> /home/${var.ssh_user}/create_demo.log
-  command="cockroach sql --url ${var.connection_string} --insecure --execute=\"ALTER DATABASE ${var.database_name} SURVIVE REGION FAILURE;\""
+  command="cockroach sql --url postgresql://root@${var.cluster_fqdn}:26257 --insecure --execute=\"ALTER DATABASE ${var.database_name} SURVIVE REGION FAILURE;\""
   echo "$command" >> /home/${var.ssh_user}/create_demo.log
   sudo bash -c "$command 2>&1" >> /home/${var.ssh_user}/create_demo.log
 
@@ -183,7 +196,7 @@ resource "aws_instance" "bastion" {
 
   echo "{
     \"db\": {
-      \"connection_strings\": [\"${var.connection_string}/${var.database_name}?sslmode=disable\"]
+      \"connection_strings\": [\"postgresql://root@${var.cluster_fqdn}:26257/${var.database_name}?sslmode=disable\"]
     }
   }" | sudo tee backend/config/default.json
 
