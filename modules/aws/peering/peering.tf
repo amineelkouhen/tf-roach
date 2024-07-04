@@ -19,7 +19,7 @@ provider "aws" {
     auto_accept   = false
 
     tags = {
-      Name = var.name
+      Name = "${var.name}-peering"
     }
   }
 
@@ -56,16 +56,36 @@ provider "aws" {
 ############################################################
 # Route Entries
 
+data "aws_route_tables" "requester_rts" {
+  provider = aws.requester
+  vpc_id   = var.requester_vpc.id
+  filter {
+    name   = "association.main"
+    values = [true]
+  }
+}
+
 resource "aws_route" "requester-to-accepter" {
   provider                  = aws.requester
-  route_table_id            = var.requester_vpc.main_route_table_id
+  route_table_id            = tolist(data.aws_route_tables.requester_rts.ids)[0]
   destination_cidr_block    = var.peer_vpc.cidr_block
   vpc_peering_connection_id = aws_vpc_peering_connection.peering.id
+  depends_on = [data.aws_route_tables.requester_rts]
+}
+
+data "aws_route_tables" "peer_rts" {
+  provider = aws.accepter
+  vpc_id   = var.peer_vpc.id
+  filter {
+    name   = "association.main"
+    values = [true]
+  }
 }
 
 resource "aws_route" "accepter-to-requester" {
   provider                  = aws.accepter
-  route_table_id            = var.peer_vpc.main_route_table_id
+  route_table_id            = tolist(data.aws_route_tables.peer_rts.ids)[0]
   destination_cidr_block    = var.requester_vpc.cidr_block
   vpc_peering_connection_id = aws_vpc_peering_connection.peering.id
+  depends_on = [data.aws_route_tables.peer_rts]
 }
