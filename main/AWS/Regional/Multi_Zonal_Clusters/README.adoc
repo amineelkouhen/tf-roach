@@ -1,0 +1,13 @@
+= Regional Deployment: Multi-Zonal (HA) Configuration
+
+This configuration consists of a cluster of nodes that are deployed within one single AWS data center in the ```us-east-1``` region. Each 3 nodes are deployed in a distinct availability zone.
+
+The availability zone ID is assigned to each node. This ID is used to map the node to a physical rack or logical zone. This configuration ensures that leaseholder ranges, the corresponding replicas, and associated endpoints are placed on nodes in different racks/zones.
+
+image::images/Regional-Multi-AZ.svg[Regional Multi-Zonal Configuration]
+
+As per above architecture, we create :
+
+- 1 VPC in us-east-1 with 3 Subnets, each subnet in a different availability zone,
+- 3 EC2 Instances per Availability Zone,
+- 1 Network Load Balancer to distribute traffic between Availability zones.

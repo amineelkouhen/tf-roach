@@ -19,7 +19,7 @@
                 "aws": "aws.client_provider"
             }
         },
-        "keypair": {
+        "client-keypair": {
             "source": "../../../../modules/aws/keypair",
             "name": "${var.deployment_name}-client",
             "ssh_public_key": "${var.ssh_public_key}",
@@ -36,7 +36,7 @@
             "security_groups": "${module.client-network.client-security-groups}",
             "machine_image": "${var.client_machine_image}",
             "machine_type": "${var.machine_type}",
-            "cluster_fqdn": "${module.weighted-lb.cluster_master_dns}",
+            "cluster_fqdn": "${module.network-vpc.nlb_dns_name}",
             "demo_schema_script": "${var.demo_schema_script}",
             "backend_port": "${var.backend_port}",
             "frontend_port": "${var.frontend_port}",
@@ -49,8 +49,8 @@
             "resource_tags" : {},
             "ssh_user": "${var.ssh_user}",
             "ssh_public_key": "${var.ssh_public_key}",
-            "ssh_key_name": "${module.keypair.key-name}",
-            "dependencies":"${[module.weighted-lb.routing_policy]}",
+            "ssh_key_name": "${module.client-keypair.key-name}",
+            "dependencies":"${[]}",
             "providers": {
                 "aws": "aws.client_provider"
             }

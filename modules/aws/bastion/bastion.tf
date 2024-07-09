@@ -153,21 +153,26 @@ resource "aws_instance" "bastion" {
   echo "$command" >> /home/${var.ssh_user}/create_demo.log
   sudo bash -c "$command 2>&1" >> /home/${var.ssh_user}/create_demo.log
 
-  echo "$(date) - Associate Regions for ${var.database_name}" >> /home/${var.ssh_user}/create_demo.log
-  command="cockroach sql --url postgresql://root@${var.cluster_fqdn}:26257 --insecure --execute=\"ALTER DATABASE ${var.database_name} SET PRIMARY REGION '${var.regions[0]}';\""
-  echo "$command" >> /home/${var.ssh_user}/create_demo.log
-  sudo bash -c "$command 2>&1" >> /home/${var.ssh_user}/create_demo.log
-  command="cockroach sql --url postgresql://root@${var.cluster_fqdn}:26257 --insecure --execute=\"ALTER DATABASE ${var.database_name} ADD REGION '${var.regions[1]}';\""
-  echo "$command" >> /home/${var.ssh_user}/create_demo.log
-  sudo bash -c "$command 2>&1" >> /home/${var.ssh_user}/create_demo.log
-  command="cockroach sql --url postgresql://root@${var.cluster_fqdn}:26257 --insecure --execute=\"ALTER DATABASE ${var.database_name} ADD REGION '${var.regions[2]}';\""
-  echo "$command" >> /home/${var.ssh_user}/create_demo.log
-  sudo bash -c "$command 2>&1" >> /home/${var.ssh_user}/create_demo.log
+  if [ ${length(var.regions)} -ge 3 ]; then
+    echo "$(date) - Associate Regions for ${var.database_name}" >> /home/${var.ssh_user}/create_demo.log
+    regions=(${join(" ", var.regions)})
+    for i in "$${!regions[@]}"; do
+      if [ $i -eq 0 ]; then
+        command="cockroach sql --url postgresql://root@${var.cluster_fqdn}:26257 --insecure --execute=\"ALTER DATABASE ${var.database_name} SET PRIMARY REGION '$${regions[$i]}';\""
+        echo "$command" >> /home/${var.ssh_user}/create_demo.log
+        sudo bash -c "$command 2>&1" >> /home/${var.ssh_user}/create_demo.log
+      else
+        command="cockroach sql --url postgresql://root@${var.cluster_fqdn}:26257 --insecure --execute=\"ALTER DATABASE ${var.database_name} ADD REGION '$${regions[$i]}';\""
+        echo "$command" >> /home/${var.ssh_user}/create_demo.log
+        sudo bash -c "$command 2>&1" >> /home/${var.ssh_user}/create_demo.log
+      fi
+    done
 
-  echo "$(date) - Create SURVIVE REGION FAILURE for ${var.database_name}" >> /home/${var.ssh_user}/create_demo.log
-  command="cockroach sql --url postgresql://root@${var.cluster_fqdn}:26257 --insecure --execute=\"ALTER DATABASE ${var.database_name} SURVIVE REGION FAILURE;\""
-  echo "$command" >> /home/${var.ssh_user}/create_demo.log
-  sudo bash -c "$command 2>&1" >> /home/${var.ssh_user}/create_demo.log
+    echo "$(date) - Create SURVIVE REGION FAILURE for ${var.database_name}" >> /home/${var.ssh_user}/create_demo.log
+    command="cockroach sql --url postgresql://root@${var.cluster_fqdn}:26257 --insecure --execute=\"ALTER DATABASE ${var.database_name} SURVIVE REGION FAILURE;\""
+    echo "$command" >> /home/${var.ssh_user}/create_demo.log
+    sudo bash -c "$command 2>&1" >> /home/${var.ssh_user}/create_demo.log
+  fi
 
   ################
   # Prepare Demo

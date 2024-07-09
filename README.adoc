@@ -60,18 +60,18 @@ In the `main` folder, there exist multiple configurations that create CockroachD
 
 [cols="25h,~,~,~"]
 |===
-.2+^.^h|Provider .2+^.^h|Configuration 2.+^.^h|Cluster Type 
+.2+^.^h|Provider .2+^.^h|Configuration 2.+^.^h|Cluster Type
 ^.^h|Basic Cluster ^.^h|Multi-Zonal Cluster (HA)
 
 .2+^.^|Amazon Web Services (AWS)
 
 ^.^|Regional Deployment
 a|image::images/TBC.png[Basic Cluster, link=""]
-a|image::images/TBC.png[Multi-Zonal, link=""]
+a|image::main/AWS/Regional/Multi_Zonal_Clusters/images/Regional-Multi-AZ.svg[Basic, link="main/AWS/Regional/Multi_Zonal_Clusters"]
 
 ^.^|Multi-Region Deployment
 a|image::images/TBC.png[Basic Cluster, link=""]
-a|image::main/AWS/Multi-Region/Multi_Zonal_Clusters/images/Multi-Region.svg[Multi-Zonal, link="main/AWS/Multi-Region/Multi_Zonal_Clusters"]
+a|image::main/AWS/Multi-Region/Multi_Zonal_Clusters/images/Multi-Region-Multi-AZ.svg[Multi-Zonal, link="main/AWS/Multi-Region/Multi_Zonal_Clusters"]
 
 |===
 
@@ -200,13 +200,13 @@ Outputs:
 ####################################### Client #######################################
 
 client-public-IP = "52.40.254.77"
-backend-url = "http://52.40.254.77:3000/api/data"
-frontend-url = "http://52.40.254.77:8080/"
+demo-backend-url = "http://52.40.254.77:3000/api/data"
+demo-frontend-url = "http://52.40.254.77:8080/"
+
+####################################### CRDB Cluster #################################
 
 console-url = "http://amine.cluster.sko-iam-demo.com:8080/"
 connexion-string = "postgresql://root@amine.cluster.sko-iam-demo.com:26257/defaultdb"
-####################################### CRDB Cluster #################################
-
 cluster-dns = "amine.cluster.sko-iam-demo.com"
 cr-cluster-nlb-dns = "nlb-20240703082428087000000004-b0e5c5f65a5943eb.elb.us-east-1.amazonaws.com"
 

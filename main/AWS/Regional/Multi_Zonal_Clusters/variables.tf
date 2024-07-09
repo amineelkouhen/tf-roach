@@ -23,11 +23,11 @@ variable "aws_session_token" {
 }
 
 variable "regions" {
-  default = ["us-east-1", "eu-west-3", "ap-northeast-1"]
+  default = ["us-east-1"]
 }
 
 variable "vpc_cidr" {
-  default = ["10.1.0.0/16", "10.2.0.0/16", "10.3.0.0/16"]
+  default = ["10.1.0.0/16"]
 }
 
 variable "subnets" {
@@ -35,16 +35,6 @@ variable "subnets" {
     us-east-1a = "10.1.1.0/24"
     us-east-1b = "10.1.2.0/24"
     us-east-1c = "10.1.3.0/24"
-  },
-  {
-    eu-west-3a = "10.2.1.0/24"
-    eu-west-3b = "10.2.2.0/24"
-    eu-west-3c = "10.2.3.0/24"
-  },
-  {
-    ap-northeast-1a = "10.3.1.0/24"
-    ap-northeast-1c = "10.3.2.0/24"
-    ap-northeast-1d = "10.3.3.0/24"
   }]
 }
 
@@ -66,8 +56,8 @@ variable "volume_type" {
 
 // other optional edits *************************************
 variable "cluster_size" {
-  # You should use 3 per region for some more realistic installation
-  default = [3, 3, 3]
+  # Here we will create a 9-nodes cluster in one region
+  default = [9]
 }
 
 // other possible edits *************************************
@@ -81,11 +71,11 @@ variable "machine_type" {
 
 variable "machine_images" {
   // Ubuntu 24.04 LTS
-  default = ["ami-04b70fa74e45c3917", "ami-00ac45f3035ff009e", "ami-01bef798938b7644d"]
+  default = ["ami-04b70fa74e45c3917"]
 }
 
 variable "env" {
-  default = ["us", "eu", "ap"]
+  default = ["us"]
 }
 
 //// Client Configuration
@@ -145,9 +135,4 @@ variable "backend_port" {
 
 variable "frontend_port" {
   default = 80
-}
-
-// Route53: Public hosted zone in which the weighted strategy will be implemented
-variable "hosted_zone" {
-  default = "sko-iam-demo.com"
 }
