@@ -67,11 +67,11 @@ In the `main` folder, there exist multiple configurations that create CockroachD
 
 ^.^|Regional Deployment
 a|image::images/TBC.png[Basic Cluster, link=""]
-a|image::main/AWS/Regional/Multi_Zonal_Clusters/images/Regional-Multi-AZ.svg[Basic, link="main/AWS/Regional/Multi_Zonal_Clusters"]
+a|image::main/aws/Regional/Multi_Zonal_Clusters/images/Regional-Multi-AZ.svg[Basic, link="main/aws/Regional/Multi_Zonal_Clusters"]
 
 ^.^|Multi-Region Deployment
 a|image::images/TBC.png[Basic Cluster, link=""]
-a|image::main/AWS/Multi-Region/Multi_Zonal_Clusters/images/Multi-Region-Multi-AZ.svg[Multi-Zonal, link="main/AWS/Multi-Region/Multi_Zonal_Clusters"]
+a|image::main/aws/Multi-Region/Multi_Zonal_Clusters/images/Multi-Region-Multi-AZ.svg[Multi-Zonal, link="main/aws/Multi-Region/Multi_Zonal_Clusters"]
 
 |===
 
