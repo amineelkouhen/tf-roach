@@ -167,7 +167,7 @@ Each configuration consists of one (or many) JSON file(s) (*.tf.json) that calls
 For each cloud provider, it exists a networking module to create VPCs/VNETs, subnets and load balancers, a DNS module to create the cluster's FQDN, and a cockroach (cr) module that creates the cluster nodes.
 Other modules exist for specific purposes like the peering or keypair modules...
 
-If a client is added (the bastion module is called), a standalone machine will be created with a few pre-installed packages (db-workload, the trade demo application, and much more).
+If a client is added (the bastion module is called), a standalone machine will be created with a few pre-installed packages (https://github.com/fabiog1901/dbworkload[db-workload], the https://github.com/amine-crl/trade-app-crdb-multi-region/tree/main[trade demo application], and much more).
 
 image::images/trade_demo.png[CRL]
 
