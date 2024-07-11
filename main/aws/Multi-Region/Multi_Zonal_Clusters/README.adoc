@@ -1,4 +1,4 @@
-= Multi-Region Deployment: Multi-Zonal (HA) Configuration
+= Multi-Region Deployment
 
 This configuration consists of a cluster of nodes that are deployed within three AWS data centers: One in the ```us-east-1``` region, connected to two other clusters of nodes, deployed respectively within the ```eu-west-3``` and ```ap-northeast-1``` regions. Each node is deployed in a distinct availability zone.
 

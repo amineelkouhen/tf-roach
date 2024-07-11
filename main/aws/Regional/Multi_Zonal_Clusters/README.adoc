@@ -1,4 +1,4 @@
-= Regional Deployment: Multi-Zonal (HA) Configuration
+= Regional Deployment
 
 This configuration consists of a cluster of nodes that are deployed within one single AWS data center in the ```us-east-1``` region. Each 3 nodes are deployed in a distinct availability zone.
 
