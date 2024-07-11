@@ -17,7 +17,7 @@ As per above architecture, we create :
 [IMPORTANT]
 .Load Balancing
 ====
-Both [Route53](https://aws.amazon.com/route53/) and [ELB](https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/what-is-load-balancing.html) are used to distribute the network traffic.
+Both https://aws.amazon.com/route53/[Route53] and https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/what-is-load-balancing.html[ELB] are used to distribute the network traffic.
 
 ELB distributes traffic among Multiple Availability Zone but not to multiple Regions. Route53 can distribute traffic among multiple Regions.
 ====
