@@ -52,28 +52,116 @@ image::images/multi-regional.png[CRL]
 
 In the `main` folder, there exist multiple configurations that create CockroachDB Clusters, on the main cloud providers, and with multiple deployment options:
 
-- on Virtual Machines (Self-hosted),
-- Managed (using CockroachDB serverless) => TBC,
-- on Kubernetes (ex. GKE) => TBC
+- Self-Hosted on Virtual Machines,
+- Self-Hosted on Cloud Kubernetes Services (EKS, GKE, AKS) => TBC,
+- Managed (using CockroachDB Serverless) => TBC
 
-=== CockroachDB on Virtual Machines
+=== Self-Hosted CockroachDB on VM
 
-[cols="25h,~,~,~"]
+[cols="25h,~,~"]
 |===
-.2+^.^h|Provider .2+^.^h|Configuration 2.+^.^h|Cluster Type
-^.^h|Basic Cluster ^.^h|Multi-Zonal Cluster (HA)
+^.^h|Cloud Provider
+^.^h|Regional Deployment ^.^h|Multi-Region Deployment
 
-.2+^.^|Amazon Web Services (AWS)
+^.^|Amazon Web Services (AWS)
 
-^.^|Regional Deployment
-a|image::images/TBC.png[Basic Cluster, link=""]
 a|image::main/aws/Regional/Multi_Zonal_Clusters/images/Regional-Multi-AZ.svg[Basic, link="main/aws/Regional/Multi_Zonal_Clusters"]
-
-^.^|Multi-Region Deployment
-a|image::images/TBC.png[Basic Cluster, link=""]
 a|image::main/aws/Multi-Region/Multi_Zonal_Clusters/images/Multi-Region-Multi-AZ.svg[Multi-Zonal, link="main/aws/Multi-Region/Multi_Zonal_Clusters"]
 
+
+^.^|Google Cloud Platform (GCP)
+
+a|image::images/TBC.png[Basic Cluster, link=""]
+a|image::images/TBC.png[Basic Cluster, link=""]
+
+^.^|Microsoft Azure
+
+a|image::images/TBC.png[Basic Cluster, link=""]
+a|image::images/TBC.png[Basic Cluster, link=""]
+
 |===
+
+=== Self-Hosted CockroachDB on Kubernetes
+
+Another way to deploy CockroachDB is to use the CockroachDB Kubernetes https://www.cockroachlabs.com/docs/releases/kubernetes-operator[Operator] for Kubernetes. It provides a simple way to get a CockroachDB cluster on Kubernetes and enables more complex deployment scenarios.
+
+Operator allows CockroachDB to maintain a unified deployment solution across various Kubernetes environments, i.e., RedHat OpenShift, VMware Tanzu (Tanzu Kubernetes Grid, and Tanzu Kubernetes Grid Integrated Edition, formerly known as PKS), Google Kubernetes Engine (GKE), Azure Kubernetes Service (AKS), and vanilla (upstream) Kubernetes.
+
+image:images/kubernetes-2.png[Operator]
+
+==== Prerequisites
+
+To deploy CockroachDB on Kubernetes using the configuration, you’ll need:
+
+- the cloud provider's CLI (ex. https://cloud.google.com/sdk/gcloud[GCloud], https://learn.microsoft.com/en-us/cli/azure/[Azure CLI], https://aws.amazon.com/fr/cli/[AWS CLI]) installed and configured,
+- a Kubernetes client (ex. https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/[kubectl]).
+
+==== Configuration files
+
+In the `main` folder, there exist multiple configurations that create CockroachDB Clusters, on the main cloud providers, using the managed Kubernetes services of each cloud provider (AKS for Azure, EKS for AWS and GKE for Google Cloud).
+
+[cols="25h,~,~"]
+|===
+^.^h|Cloud Provider
+^.^h|Regional Deployment ^.^h|Multi-Region Deployment
+
+^.^|Elastic Kubernetes Service (EKS)
+
+a|image::images/TBC.png[Basic Cluster, link=""]
+a|image::images/TBC.png[Basic Cluster, link=""]
+
+
+^.^|Google Kubernetes Engine (GKE)
+
+a|image::images/TBC.png[Basic Cluster, link=""]
+a|image::images/TBC.png[Basic Cluster, link=""]
+
+^.^|Azure Kubernetes Service (AKS)
+
+a|image::images/TBC.png[Basic Cluster, link=""]
+a|image::images/TBC.png[Basic Cluster, link=""]
+
+|===
+
+=== CockroachDB Serverless
+
+CockroachDB Serverless delivers free and pay-as-you-go CockroachDB clusters for you and your organization. It is a managed instance of CockroachDB that lets you start using your database immediately and auto-scales based on your application traffic.
+
+A Serverless cluster is an isolated, virtualized tenant running on a much larger physical CockroachDB deployment.
+CockroachDB Serverless has separate compute and storage layers. The storage pods (KV pods) can be shared across users, and the compute pods (SQL pods) are unique to each user. These shared resources make CockroachDB Serverless architecture "multi-tenant," in contrast to the single tenant architecture of CockroachDB Dedicated.
+
+Traffic comes in from the public internet and is routed by the cloud provider’s load balancer to a Kubernetes (K8s) cluster that hosts CockroachDB. K8s pods allow CockroachDB Serverless to limit SQL resource consumption for each user. They also minimize interference between pods that are scheduled on the same machine, giving each user a high-quality experience even when other users are running heavy workloads.
+
+The following diagram is a high-level representation of what a typical Serverless cluster looks like:
+
+image:images/serverless-diagram.png[Operator]
+
+You can provision CockroachDB Cloud clusters and cluster resources by using the templates below. These templates use the CockroachDB Cloud Terraform https://registry.terraform.io/providers/cockroachdb/cockroach[provider].
+
+[cols="25h,~,~"]
+|===
+^.^h|Cloud Provider
+^.^h|Regional Deployment ^.^h|Multi-Region Deployment
+
+^.^|Amazon Web Services (AWS)
+
+a|image::images/TBC.png[Basic Cluster, link=""]
+a|image::images/TBC.png[Basic Cluster, link=""]
+
+
+^.^|Google Cloud Platform (GCP)
+
+a|image::images/TBC.png[Basic Cluster, link=""]
+a|image::images/TBC.png[Basic Cluster, link=""]
+
+^.^|Microsoft Azure
+
+a|image::images/TBC.png[Basic Cluster, link=""]
+a|image::images/TBC.png[Basic Cluster, link=""]
+
+|===
+
+=== Usage
 
 Each configuration consists of one (or many) JSON file(s) (*.tf.json) that calls one or many modules depending on the configuration.
 For each cloud provider, it exists a networking module to create VPCs/VNETs, subnets and load balancers, a DNS module to create the cluster's FQDN, and a cockroach (cr) module that creates the cluster nodes.
@@ -180,7 +268,7 @@ variable "machine_image" {
 }
 ----
 
-==== Usage
+==== Execution
 
 
 1. To check the terraform build plan, run the following command.
